@@ -1,34 +1,86 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sales Follow-Up Message Generator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-      body {
-        font-family: 'Inter', sans-serif;
-        background-color: #f9fafb;
-      }
-    </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "@google/genai": "https://esm.sh/@google/genai@^1.37.0"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sales Follow-Up Message Generator</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+    }
+  </style>
 </head>
-  <body>
-    <div id="root"></div>
-  <script type="module" src="/index.tsx"></script>
+
+<body class="flex items-center justify-center min-h-screen">
+  <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-xl">
+    <h1 class="text-2xl font-bold mb-4 text-center">
+      Sales Follow-Up Message Generator
+    </h1>
+
+    <textarea
+      id="prompt"
+      class="w-full border rounded p-3 mb-4"
+      rows="4"
+      placeholder="Example: Client didn’t reply after pricing was shared..."
+    ></textarea>
+
+    <button
+      id="generateBtn"
+      class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
+    >
+      Generate Follow-Up
+    </button>
+
+    <div
+      id="result"
+      class="mt-4 p-3 border rounded bg-gray-50 hidden"
+    ></div>
+  </div>
+
+  <script>
+    const button = document.getElementById("generateBtn");
+    const promptInput = document.getElementById("prompt");
+    const resultBox = document.getElementById("result");
+
+    button.addEventListener("click", async () => {
+      const prompt = promptInput.value.trim();
+
+      if (!prompt) {
+        alert("Please enter a situation first.");
+        return;
+      }
+
+      resultBox.classList.add("hidden");
+      resultBox.innerText = "Generating...";
+
+      try {
+        const response = await fetch("/.netlify/functions/generate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ prompt })
+        });
+
+        const data = await response.json();
+
+        resultBox.innerText = data.text;
+        resultBox.classList.remove("hidden");
+      } catch (error) {
+        resultBox.innerText = "Something went wrong. Please try again.";
+        resultBox.classList.remove("hidden");
+      }
+    });
+  </script>
 </body>
 </html>
